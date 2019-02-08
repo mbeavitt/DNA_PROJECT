@@ -1,0 +1,378 @@
+<!--Saved by Quest 5.8.6794.35054-->
+<asl version="580">
+  <include ref="English.aslx" />
+  <include ref="Core.aslx" />
+  <game name="RNA to Protein">
+    <inherit name="devmode" />
+    <gameid>6d03c8c7-d732-4621-816b-50564851529d</gameid>
+    <version>1.0</version>
+    <firstpublished>2019</firstpublished>
+    <menufont>Georgia, serif</menufont>
+    <attr name="feature_advancedscripts" type="boolean">false</attr>
+    <borderlesscursor type="boolean">false</borderlesscursor>
+    <feature_pictureframe />
+    <showpanes />
+    <description>Welcome to our project game. The concept is that you are an RNA molecule being converted into a protein. You can "look at" or "use" all the objects in the game - try to find all the endings!</description>
+    <gridmap type="boolean">false</gridmap>
+    <feature_devmode />
+    <start type="script"><![CDATA[
+      msg ("Welcome to our project game. The concept is that you are an RNA molecule being converted into a protein. You can \"look at\" or \"use\" all the objects in the game - try to find all the endings!<br/>-try using the commands \"Look\" or \"use\". If you're stuck, type \"help\"")
+    ]]></start>
+    <devmode_changepovpos />
+  </game>
+  <object name="Nucleus">
+    <inherit name="editor_room" />
+    <isroom />
+    <description>You are inside the nucleus of a cell. Around you float massive lengths of coiled DNA, being constantly modified and copied by enzymes.</description>
+    <picture>Nucleus 2019-01-31 14.48.58.png</picture>
+    <object name="player">
+      <inherit name="editor_object" />
+      <inherit name="editor_player" />
+      <alias>Genetic Code</alias>
+      <look>You are a sequence of the nucleotides Adenine, Uracil, Cytosine and Guanine held together by a ribose sugar-phosphate backbone.</look>
+      <scenery type="boolean">false</scenery>
+      <attr name="pov_look">You are a sequence of the nucleotides Adenine, Uracil, Cytosine and Guanine held together by a ribose sugar-phosphate backbone.</attr>
+    </object>
+    <object name="Multi Protein Polyadenylation Complex">
+      <inherit name="editor_object" />
+      <alias>Multi Protein Polyadenylation Complex</alias>
+      <attr name="feature_switchable" type="boolean">false</attr>
+      <feature_usegive />
+      <displayverbs type="stringlist">
+        <value>Look at</value>
+        <value>Use</value>
+      </displayverbs>
+      <look type="script">
+        picture ("Polyadenylation.png")
+        msg ("It's a complex of six different proteins that functions to add a poly A tail to a strand of mRNA. You need the tail to exit the nucleus")
+      </look>
+      <use type="script">
+        SetObjectFlagOn (player, "Polyadenylated")
+        msg ("The complex of proteins adds a poly-A tail to your sequence")
+      </use>
+    </object>
+    <object name="Nuclear Pore">
+      <inherit name="editor_object" />
+      <alias>Nuclear Pore</alias>
+      <feature_usegive />
+      <displayverbs type="stringlist">
+        <value>Look at</value>
+        <value>Use</value>
+      </displayverbs>
+      <look type="script">
+        picture ("Nuclear envelope.jpg")
+        msg ("This is the entrance to the outer cytosol. The nuclear pore is tightly controlled by a number of enzymes and proteins. ")
+      </look>
+      <use type="script">
+        if (GetBoolean(player, "Polyadenylated")) {
+          if (GetBoolean(player, "cap")) {
+            if (GetBoolean(player, "spliced")) {
+              msg ("The enzymes surrounding the nuclear pore recognise the modifications in your sequence, allowing entry to the nuclear pore")
+              SetTimeout (2) {
+                MoveObject (player, Cytosol)
+              }
+            }
+            else {
+              msg ("The checkpoint won't accept you if you still contain introns")
+            }
+          }
+          else {
+            msg ("The checkpoint won't accept you if you don't have a 5' cap")
+          }
+        }
+        else {
+          msg ("The checkpoint won't accept you unless you've got a poly-A tail")
+        }
+      </use>
+    </object>
+    <object name="Methyltransferase">
+      <inherit name="editor_object" />
+      <feature_usegive />
+      <displayverbs type="stringlist">
+        <value>Look at</value>
+        <value>Use</value>
+      </displayverbs>
+      <look type="script">
+        picture ("Methyltransferase.png")
+        msg ("The methyltransferase molecule acts to methylate guanosines on the 3' end of mRNA sequences. You need to have this 3' cap to exit the nucleus.")
+      </look>
+      <use type="script">
+        SetObjectFlagOn (player, "cap")
+        msg ("The methyltransferase methylates the guanosine on your 5' end, creating a 5' cap")
+      </use>
+    </object>
+    <object name="Spliceosome">
+      <inherit name="editor_object" />
+      <feature_usegive />
+      <alias>Spliceosome</alias>
+      <displayverbs type="stringlist">
+        <value>Look at</value>
+        <value>Use</value>
+      </displayverbs>
+      <look type="script">
+        msg ("The spliceosome exists as a complex of sRNP molecules that remove introns from mRNA sequences.")
+        picture ("Spliceosome.jpg")
+      </look>
+      <use type="script">
+        SetObjectFlagOn (player, "spliced")
+        msg ("You enter the spliceosome and it removes all of your non-coding introns, condensing your genetic code.")
+      </use>
+    </object>
+  </object>
+  <object name="Cytosol">
+    <inherit name="editor_room" />
+    <usedefaultprefix type="boolean">false</usedefaultprefix>
+    <prefix>the</prefix>
+    <description>This is the busy highway of the cell. Many molecules pass by you of many different types, and you can see giant strands of tubulin stretching into the distance, supporting all the various structures.</description>
+    <picture>Cytoplasm 2019-01-31 14.49.52.png</picture>
+    <enter type="script">
+      options = Split("Yes, I do have an SRP;No, I don't have an SRP", ";")
+      ShowMenu ("Do you have a sequence that codes for ribosomal insertion?", options, false) {
+        switch (result) {
+          case ("Yes, I do have an SRP") {
+            SetObjectFlagOn (player, "SRP")
+          }
+          case ("No, I don't have an SRP") {
+          }
+        }
+      }
+    </enter>
+    <object name="Golgi Apparatus">
+      <look type="string"></look>
+      <displayverbs type="stringlist">
+        <value>Look at</value>
+      </displayverbs>
+      <isroom />
+      <object name="Kinase">
+        <inherit name="editor_object" />
+        <look>Phosphorylates proteins or protein oligosaccharides.</look>
+        <feature_usegive />
+        <use type="script">
+          msg ("Protein is phosphorylated")
+          SetObjectFlagOn (player, "phosphorylated")
+        </use>
+      </object>
+      <object name="placeholder glycosylation sugar options">
+        <inherit name="editor_object" />
+      </object>
+    </object>
+    <object name="Mitochondrion">
+      <displayverbs type="stringlist">
+        <value>Look at</value>
+      </displayverbs>
+      <isroom />
+      <enter type="script">
+        msg ("MITOCHONDRION ENDING")
+      </enter>
+      <look type="script">
+        msg ("")
+        picture ("")
+      </look>
+    </object>
+    <object name="Lysosome">
+      <displayverbs type="stringlist">
+        <value>Look at</value>
+      </displayverbs>
+      <isroom />
+      <look>Note - this will be both one of the endings (digestive hydrolase enzyme) and the death zone.</look>
+    </object>
+    <object name="Cell Membrane">
+      <usedefaultprefix />
+      <prefix type="string"></prefix>
+      <displayverbs type="stringlist">
+        <value>Look at</value>
+      </displayverbs>
+      <isroom />
+    </object>
+    <object name="Ribosome">
+      <inherit name="editor_object" />
+      <alias>Ribosome</alias>
+      <displayverbs type="stringlist">
+        <value>Look at</value>
+        <value>Use</value>
+      </displayverbs>
+      <feature_usegive />
+      <look type="script">
+        msg ("This ribosome can translate mRNA into proteins")
+        picture ("Ribosome.jpg")
+      </look>
+      <use type="script">
+        if (GetBoolean(player, "SRP")) {
+          options = Split("I have a stop transfer sequence;I don't have a stop transfer sequence", ";")
+          ShowMenu ("Do you have a stop transfer sequence?", options, false) {
+            switch (result) {
+              case ("I have a stop transfer sequence") {
+                SetObjectFlagOn (player, "membrane protein")
+                msg ("You are now a membrane protein")
+              }
+              case ("I don't have a stop transfer sequence") {
+                SetObjectFlagOn (player, "soluble protein")
+                msg ("You are now a soluble protein")
+              }
+            }
+          }
+          msg ("You have an SRP! You bind to the ribosome and it moves to the RER, attaching to the ER membrane and begins translation")
+          MoveObject (player, Endoplasmic Reticulum)
+        }
+        else {
+          msg ("You do not have an SRP - the ribosome translates you directly into the cytosol.")
+          options = Split("Peroxisomal Signal Sequence;Mitochondrial Signal Sequence;Chloroplast Signal Sequence", ";")
+          ShowMenu ("Which of these signals are encoded in your sequence?", options, false) {
+            switch (result) {
+              case ("Peroxisomal Signal Sequence") {
+                msg ("Travel to peroxisome")
+                MoveObject (player, Peroxisome)
+              }
+              case ("Mitochondrial Signal Sequence") {
+                msg ("Travel to mitochondrion")
+                MoveObject (player, Mitochondrion)
+              }
+              case ("Chloroplast Signal Sequence") {
+                msg ("Travel to chloroplast")
+                MoveObject (player, Chloroplast HIDDEN)
+              }
+            }
+          }
+        }
+      </use>
+    </object>
+    <object name="Endoplasmic Reticulum">
+      <isroom />
+      <attr name="feature_startscript" type="boolean">false</attr>
+      <displayverbs type="stringlist">
+        <value>Look at</value>
+      </displayverbs>
+      <look type="string"></look>
+      <description type="script">
+        msg ("")
+        picture ("")
+      </description>
+      <enter type="script"><![CDATA[
+        if (GetBoolean(player, "membrane protein")) {
+          MakeObjectVisible (GPI transamidase)
+        }
+        msg ("Add here description of enzymes and possible outcomes of choices made (maybe picture?)")
+        if (RandomChance(80)) {
+          msg ("Well done! You were sequenced and folded properly!<br/>")
+        }
+        else {
+          msg ("Uh oh, you didn't fold properly. The chaperone protein binds to you and you may attempt to try folding again.")
+          option = Split("Give up;Try again", ";")
+          ShowMenu ("Would you like to try again?", option, false) {
+            switch (result) {
+              case ("Give up") {
+                msg ("Ubiquitin attached, Player is broken down")
+                finish
+              }
+              case ("Try again") {
+                if (RandomChance(50)) {
+                  msg ("Ubiquitin attached, Player is broken down")
+                }
+                else {
+                  msg ("Well done! You were sequenced and folded properly!<br/>")
+                }
+              }
+            }
+          }
+        }
+      ]]></enter>
+      <object name="Lectin">
+        <inherit name="editor_object" />
+        <look>Adds a mannose-6-phosphate tag to the protein</look>
+        <feature_usegive />
+        <use type="script">
+          SetObjectFlagOn (player, "lysosomeending")
+          msg ("Player gets m6p addition")
+          MoveObject (player, Golgi Apparatus)
+        </use>
+      </object>
+      <object name="nucleus ending methyl">
+        <inherit name="editor_object" />
+        <alias>Methyltransferase</alias>
+        <displayverbs type="stringlist">
+          <value>Look at</value>
+          <value>Use</value>
+        </displayverbs>
+        <feature_usegive />
+        <use type="script">
+          msg ("You are a methylated protein now")
+          SetObjectFlagOn (player, "nucleusending")
+          MoveObject (player, Golgi Apparatus)
+        </use>
+      </object>
+      <object name="N terminal Acetyltransferase">
+        <inherit name="editor_object" />
+        <alias>N terminal Acetyltransferase</alias>
+        <feature_usegive />
+        <use type="script">
+          if (RandomChance(90)) {
+            SetObjectFlagOn (player, "p53")
+            msg ("normal p53")
+          }
+          else {
+            SetObjectFlagOn (player, "cancer")
+            msg ("cancer p53")
+          }
+          MoveObject (player, Golgi Apparatus)
+        </use>
+      </object>
+      <object name="Glycosyltransferase">
+        <inherit name="editor_object" />
+        <feature_usegive />
+        <use type="script">
+          msg ("You have been glycosylated")
+          SetObjectFlagOn (player, "glycosylated")
+          MoveObject (player, Golgi Apparatus)
+        </use>
+      </object>
+      <object name="GPI transamidase">
+        <inherit name="editor_object" />
+        <feature_usegive />
+        <visible type="boolean">false</visible>
+        <use type="script">
+          SetObjectFlagOn (player, "GPI Anchor added")
+          msg ("GPI anchor added to player")
+          MoveObject (player, Golgi Apparatus)
+        </use>
+      </object>
+      <object name="Protease">
+        <inherit name="editor_object" />
+        <feature_usegive />
+        <use type="script">
+          msg ("The protease cleaves the player into two products (INSULIN ENDING)")
+          SetObjectFlagOn (player, "insulin")
+          MoveObject (player, Golgi Apparatus)
+        </use>
+      </object>
+      <object name="Disulfide Isomerase">
+        <inherit name="editor_object" />
+        <feature_usegive />
+        <use type="script">
+          msg ("Adds a disulfide bond to your protein")
+          SetObjectFlagOn (player, "disulfide")
+          MoveObject (player, Golgi Apparatus)
+        </use>
+      </object>
+    </object>
+    <object name="Peroxisome">
+      <isroom />
+      <displayverbs type="stringlist">
+        <value>Look at</value>
+      </displayverbs>
+      <enter type="script">
+        msg ("PEROXISOME ENDING")
+      </enter>
+    </object>
+    <object name="Chloroplast HIDDEN">
+      <alias>Chloroplast</alias>
+      <visible type="boolean">false</visible>
+      <isroom />
+      <enter type="script">
+        msg ("CHLOROPLAST ENDING")
+      </enter>
+    </object>
+  </object>
+  <object name="Outside the Cell">
+    <inherit name="editor_room" />
+  </object>
+</asl>
