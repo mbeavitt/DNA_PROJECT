@@ -1,9 +1,10 @@
-<!--Saved by Quest 5.8.6794.35054-->
+<!--Saved by Quest 5.8.6836.13983-->
 <asl version="580">
   <include ref="English.aslx" />
   <include ref="Core.aslx" />
   <game name="RNA to Protein">
     <inherit name="devmode" />
+    <inherit name="theme_retro" />
     <gameid>6d03c8c7-d732-4621-816b-50564851529d</gameid>
     <version>1.0</version>
     <firstpublished>2019</firstpublished>
@@ -11,14 +12,14 @@
     <attr name="feature_advancedscripts" type="boolean">false</attr>
     <borderlesscursor type="boolean">false</borderlesscursor>
     <feature_pictureframe />
-    <showpanes />
+    <showpanes type="boolean">false</showpanes>
     <description>Welcome to our project game. The concept is that you are an RNA molecule being converted into a protein. You can "look at" or "use" all the objects in the game - try to find all the endings!</description>
     <gridmap type="boolean">false</gridmap>
-    <feature_devmode />
+    <attr name="feature_devmode" type="boolean">false</attr>
+    <devmode_changepovpos />
     <start type="script"><![CDATA[
       msg ("Welcome to our project game. The concept is that you are an RNA molecule being converted into a protein. You can \"look at\" or \"use\" all the objects in the game - try to find all the endings!<br/>-try using the commands \"Look\" or \"use\". If you're stuck, type \"help\"")
     ]]></start>
-    <devmode_changepovpos />
   </game>
   <object name="Nucleus">
     <inherit name="editor_room" />
@@ -92,6 +93,7 @@
         <value>Look at</value>
         <value>Use</value>
       </displayverbs>
+      <scenery type="boolean">false</scenery>
       <look type="script">
         picture ("Methyltransferase.png")
         msg ("The methyltransferase molecule acts to methylate guanosines on the 3' end of mRNA sequences. You need to have this 3' cap to exit the nucleus.")
@@ -154,6 +156,24 @@
       </object>
       <object name="placeholder glycosylation sugar options">
         <inherit name="editor_object" />
+      </object>
+      <object name="Exit Vesicle">
+        <inherit name="editor_object" />
+        <alias>Exit Vesicle</alias>
+        <scenery type="boolean">false</scenery>
+        <feature_usegive />
+        <use type="script">
+          if (GetBoolean(player, "disulfide")) {
+            if (GetBoolean(player, "protease")) {
+              msg ("The exit vesicle recognises you as an insulin protein and transports you to the cell membrane. You are secreted into the bloodstream of a human and cause their blood glucose level to reduce")
+              finish
+            }
+            else {
+            }
+          }
+          else if () {
+          }
+        </use>
       </object>
     </object>
     <object name="Mitochondrion">
@@ -340,7 +360,7 @@
         <feature_usegive />
         <use type="script">
           msg ("The protease cleaves the player into two products (INSULIN ENDING)")
-          SetObjectFlagOn (player, "insulin")
+          SetObjectFlagOn (player, "protease")
           MoveObject (player, Golgi Apparatus)
         </use>
       </object>
@@ -375,4 +395,5 @@
   <object name="Outside the Cell">
     <inherit name="editor_room" />
   </object>
+  <walkthrough name="DNA adventure walkthrough" />
 </asl>
