@@ -16,7 +16,8 @@
     <description>Welcome to our project game. The concept is that you are an RNA molecule being converted into a protein. You can "look at" or "use" all the objects in the game - try to find all the endings!</description>
     <gridmap type="boolean">false</gridmap>
     <attr name="feature_devmode" type="boolean">false</attr>
-    <devmode_changepovpos />
+    <attr name="devmode_changepovpos" type="boolean">false</attr>
+    <attr name="devmode_povpos">Endoplasmic Reticulum</attr>
     <start type="script"><![CDATA[
       msg ("Welcome to our project game. The concept is that you are an RNA molecule being converted into a protein. You can \"look at\" or \"use\" all the objects in the game - try to find all the endings!<br/>-try using the commands \"Look\" or \"use\". If you're stuck, type \"help\"")
     ]]></start>
@@ -145,33 +146,103 @@
         <value>Look at</value>
       </displayverbs>
       <isroom />
-      <object name="Kinase">
-        <inherit name="editor_object" />
-        <look>Phosphorylates proteins or protein oligosaccharides.</look>
-        <feature_usegive />
-        <use type="script">
-          msg ("Protein is phosphorylated")
-          SetObjectFlagOn (player, "phosphorylated")
-        </use>
-      </object>
-      <object name="placeholder glycosylation sugar options">
-        <inherit name="editor_object" />
-      </object>
       <object name="Exit Vesicle">
         <inherit name="editor_object" />
         <alias>Exit Vesicle</alias>
         <scenery type="boolean">false</scenery>
         <feature_usegive />
         <use type="script">
-          if (GetBoolean(player, "disulfide")) {
-            if (GetBoolean(player, "protease")) {
-              msg ("The exit vesicle recognises you as an insulin protein and transports you to the cell membrane. You are secreted into the bloodstream of a human and cause their blood glucose level to reduce")
+          if (GetBoolean(player, "Disulfide Isomerase")) {
+            if (GetBoolean(player, "Protease")) {
+              msg ("Insulin ending")
+              picture ("")
+              finish
+            }
+            else if (GetBoolean(player, "Phosphorylation")) {
+              msg ("Titin Ending")
+              picture ("")
+              finish
+            }
+            else if (GetBoolean(player, "Glycosylation")) {
+              if (GetBoolean(player, "GPI Transamidase")) {
+                msg ("CEA Ending")
+                picture ("")
+                finish
+              }
+              else {
+                if (RandomChance(25)) {
+                  msg ("Afamin ending")
+                  picture ("")
+                  finish
+                }
+                else if (RandomChance(33)) {
+                  msg ("Serum albumin ending")
+                  picture ("")
+                  finish
+                }
+                else if (RandomChance(33)) {
+                  msg ("HGC ending")
+                  picture ("")
+                  finish
+                }
+                else {
+                  msg ("Transferrin Ending")
+                  picture ("")
+                  finish
+                }
+              }
+            }
+            else if (GetBoolean(player, "Acetylation")) {
+              msg ("Rhodopsin ending")
+              picture ("")
               finish
             }
             else {
+              msg ("Leptin ending")
+              picture ("")
+              finish
             }
           }
-          else if () {
+          else if (GetBoolean(player, "Methylation")) {
+            if (GetBoolean(player, "Phosphorylation")) {
+              msg ("CENPA/CENPB ending")
+              picture ("")
+              finish
+            }
+            else if (GetBoolean(player, "Acetylation")) {
+              if (GetBoolean(player, "Nitration")) {
+                msg ("Tubulin ending")
+                picture ("")
+                finish
+              }
+            }
+          }
+          else if (GetBoolean(player, "Acetylation")) {
+            if (RandomChance(25)) {
+              msg ("Ferritin ending")
+              picture ("")
+              finish
+            }
+            else if (RandomChance(33)) {
+              msg ("Myosin ending")
+              picture ("")
+              finish
+            }
+            else if (RandomChance(33)) {
+              msg ("Normal p53 ending")
+              picture ("")
+              finish
+            }
+            else {
+              msg ("Cancer causing p53 ending")
+              picture ("")
+              finish
+            }
+          }
+          else {
+            msg ("Leptin Ending")
+            picture ("")
+            finish
           }
         </use>
       </object>
@@ -182,7 +253,7 @@
       </displayverbs>
       <isroom />
       <enter type="script">
-        msg ("MITOCHONDRION ENDING")
+        msg ("MITOCHONDRION ENDING - ATP Synthase")
       </enter>
       <look type="script">
         msg ("")
@@ -218,21 +289,23 @@
       </look>
       <use type="script">
         if (GetBoolean(player, "SRP")) {
+          msg ("You have an SRP! You bind to the ribosome and it moves to the RER, attaching to the ER membrane and begins translation")
           options = Split("I have a stop transfer sequence;I don't have a stop transfer sequence", ";")
           ShowMenu ("Do you have a stop transfer sequence?", options, false) {
             switch (result) {
               case ("I have a stop transfer sequence") {
                 SetObjectFlagOn (player, "membrane protein")
-                msg ("You are now a membrane protein")
+                msg ("You are now a membrane protein. Please wait while the ribosome translates your sequence.")
               }
               case ("I don't have a stop transfer sequence") {
                 SetObjectFlagOn (player, "soluble protein")
-                msg ("You are now a soluble protein")
+                msg ("You are now a soluble protein. Please wait while the ribosome translates your sequence.")
               }
             }
+            SetTimeout (10) {
+              MoveObject (player, Endoplasmic Reticulum)
+            }
           }
-          msg ("You have an SRP! You bind to the ribosome and it moves to the RER, attaching to the ER membrane and begins translation")
-          MoveObject (player, Endoplasmic Reticulum)
         }
         else {
           msg ("You do not have an SRP - the ribosome translates you directly into the cytosol.")
@@ -242,14 +315,17 @@
               case ("Peroxisomal Signal Sequence") {
                 msg ("Travel to peroxisome")
                 MoveObject (player, Peroxisome)
+                finish
               }
               case ("Mitochondrial Signal Sequence") {
                 msg ("Travel to mitochondrion")
                 MoveObject (player, Mitochondrion)
+                finish
               }
               case ("Chloroplast Signal Sequence") {
                 msg ("Travel to chloroplast")
                 MoveObject (player, Chloroplast HIDDEN)
+                finish
               }
             }
           }
@@ -268,111 +344,33 @@
         picture ("")
       </description>
       <enter type="script"><![CDATA[
-        if (GetBoolean(player, "membrane protein")) {
-          MakeObjectVisible (GPI transamidase)
-        }
-        msg ("Add here description of enzymes and possible outcomes of choices made (maybe picture?)")
-        if (RandomChance(80)) {
-          msg ("Well done! You were sequenced and folded properly!<br/>")
-        }
-        else {
-          msg ("Uh oh, you didn't fold properly. The chaperone protein binds to you and you may attempt to try folding again.")
-          option = Split("Give up;Try again", ";")
-          ShowMenu ("Would you like to try again?", option, false) {
-            switch (result) {
-              case ("Give up") {
-                msg ("Ubiquitin attached, Player is broken down")
-                finish
-              }
-              case ("Try again") {
-                if (RandomChance(50)) {
+        msg ("There are a number of enzymes here that modify your sequence, giving it specific properties allowing you to have a function within or outside of the cell. You are being folded...")
+        SetTimeout (3) {
+          if (RandomChance(80)) {
+            msg ("Well done! You were sequenced and folded properly!<br/>")
+          }
+          else {
+            msg ("Uh oh, you didn't fold properly. The chaperone protein binds to you and you may attempt to try folding again.")
+            option = Split("Give up;Try again", ";")
+            ShowMenu ("Would you like to try again?", option, false) {
+              switch (result) {
+                case ("Give up") {
                   msg ("Ubiquitin attached, Player is broken down")
+                  finish
                 }
-                else {
-                  msg ("Well done! You were sequenced and folded properly!<br/>")
+                case ("Try again") {
+                  if (RandomChance(50)) {
+                    msg ("Ubiquitin attached, Player is broken down")
+                  }
+                  else {
+                    msg ("Well done! You were sequenced and folded properly!<br/>")
+                  }
                 }
               }
             }
           }
         }
       ]]></enter>
-      <object name="Lectin">
-        <inherit name="editor_object" />
-        <look>Adds a mannose-6-phosphate tag to the protein</look>
-        <feature_usegive />
-        <use type="script">
-          SetObjectFlagOn (player, "lysosomeending")
-          msg ("Player gets m6p addition")
-          MoveObject (player, Golgi Apparatus)
-        </use>
-      </object>
-      <object name="nucleus ending methyl">
-        <inherit name="editor_object" />
-        <alias>Methyltransferase</alias>
-        <displayverbs type="stringlist">
-          <value>Look at</value>
-          <value>Use</value>
-        </displayverbs>
-        <feature_usegive />
-        <use type="script">
-          msg ("You are a methylated protein now")
-          SetObjectFlagOn (player, "nucleusending")
-          MoveObject (player, Golgi Apparatus)
-        </use>
-      </object>
-      <object name="N terminal Acetyltransferase">
-        <inherit name="editor_object" />
-        <alias>N terminal Acetyltransferase</alias>
-        <feature_usegive />
-        <use type="script">
-          if (RandomChance(90)) {
-            SetObjectFlagOn (player, "p53")
-            msg ("normal p53")
-          }
-          else {
-            SetObjectFlagOn (player, "cancer")
-            msg ("cancer p53")
-          }
-          MoveObject (player, Golgi Apparatus)
-        </use>
-      </object>
-      <object name="Glycosyltransferase">
-        <inherit name="editor_object" />
-        <feature_usegive />
-        <use type="script">
-          msg ("You have been glycosylated")
-          SetObjectFlagOn (player, "glycosylated")
-          MoveObject (player, Golgi Apparatus)
-        </use>
-      </object>
-      <object name="GPI transamidase">
-        <inherit name="editor_object" />
-        <feature_usegive />
-        <visible type="boolean">false</visible>
-        <use type="script">
-          SetObjectFlagOn (player, "GPI Anchor added")
-          msg ("GPI anchor added to player")
-          MoveObject (player, Golgi Apparatus)
-        </use>
-      </object>
-      <object name="Protease">
-        <inherit name="editor_object" />
-        <feature_usegive />
-        <use type="script">
-          msg ("The protease cleaves the player into two products (INSULIN ENDING)")
-          SetObjectFlagOn (player, "protease")
-          MoveObject (player, Golgi Apparatus)
-        </use>
-      </object>
-      <object name="Disulfide Isomerase">
-        <inherit name="editor_object" />
-        <feature_usegive />
-        <use type="script">
-          msg ("Adds a disulfide bond to your protein")
-          SetObjectFlagOn (player, "disulfide")
-          MoveObject (player, Golgi Apparatus)
-        </use>
-      </object>
     </object>
     <object name="Peroxisome">
       <isroom />
@@ -380,7 +378,7 @@
         <value>Look at</value>
       </displayverbs>
       <enter type="script">
-        msg ("PEROXISOME ENDING")
+        msg ("PEROXISOME ENDING - Catalase")
       </enter>
     </object>
     <object name="Chloroplast HIDDEN">
@@ -388,7 +386,7 @@
       <visible type="boolean">false</visible>
       <isroom />
       <enter type="script">
-        msg ("CHLOROPLAST ENDING")
+        msg ("CHLOROPLAST ENDING - Rubisco protein")
       </enter>
     </object>
   </object>
