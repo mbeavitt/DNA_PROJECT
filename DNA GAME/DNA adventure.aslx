@@ -35,14 +35,10 @@
     <setcustompadding />
     <custompaddingtop type="int">30</custompaddingtop>
     <category>Educational</category>
-    <showdescriptiononenter type="boolean">false</showdescriptiononenter>
+    <showdescriptiononenter />
     <start type="script">
-      TextFX_Typewriter ("Welcome to our project game. The concept is that you are an RNA molecule being converted into a protein. You can \"look at\" and/or \"use\" all the objects (the underlined words) in the game. Try clicking on them. The object is to move from organelle to organelle until you become a specific protein - try and find all the endings!", 30)
-      SetTimeout (13) {
-        MoveObject (player, Nucleus)
-      }
+      msg ("Welcome to our project game. The concept is that you are an RNA molecule being converted into a protein. You can \"look at\" and/or \"use\" all the objects (the underlined words) in the game. Try clicking on them. The object is to move from organelle to organelle until you become a specific protein - try and find all the endings!")
     </start>
-    <echohyperlinks />
   </game>
   <object name="Nucleus">
     <inherit name="editor_room" />
@@ -51,8 +47,15 @@
     <onexit type="script">
     </onexit>
     <enter type="script">
-      TextFX_Typewriter (ShowRoomDescription, 100)
     </enter>
+    <object name="player">
+      <inherit name="editor_object" />
+      <inherit name="editor_player" />
+      <alias>Genetic Code</alias>
+      <look>You are a sequence of the nucleotides Adenine, Uracil, Cytosine and Guanine held together by a ribose sugar-phosphate backbone.</look>
+      <scenery type="boolean">false</scenery>
+      <attr name="pov_look">You are a sequence of the nucleotides Adenine, Uracil, Cytosine and Guanine held together by a ribose sugar-phosphate backbone.</attr>
+    </object>
     <object name="Multi Protein Polyadenylation Complex">
       <inherit name="editor_object" />
       <alias>Multi Protein Polyadenylation Complex</alias>
@@ -296,8 +299,11 @@
                   finish
                 }
                 case ("I don't have a stop transfer sequence") {
-                  msg ("The ribosome attaches to the RER and begins translation")
-                  MoveObject (player, Endoplasmic Reticulum)
+                  TextFX_Typewriter ("The ribosome attaches to the RER and begins translation", 30)
+                  SetTimeout (6) {
+                    ClearScreen
+                    MoveObject (player, Endoplasmic Reticulum)
+                  }
                 }
               }
             }
@@ -346,108 +352,108 @@
         picture ("")
       </description>
       <enter type="script">
-        player.pov_look = "You are now a sequence of up to 20 amino acids. Depending on your modifications, you'll have differing purposes"
-        option1 = Split("Disulfide Isomerase;Methyltransferase;Acetyltransferase;Sulfotransferase", ";")
-        ShowMenu ("There are a number of enzymes present nearby. Each one modifies you in a specific way, causing you to be suited to a particular function. Make a choice:", option1, false) {
-          switch (result) {
-            case ("Disulfide Isomerase") {
-              disulfChoice = Split("Protease;Kinase;Glycosylation Complex;Acetyltransferase;No Modification", ";")
-              msg ("A disulfide isomerase enzyme adds a number of disulfide bonds to your sequence")
-              ShowMenu ("Choose another modification", disulfChoice, true) {
-                switch (result) {
-                  case ("Protease") {
-                    msg ("A protease enzyme splits you into two parts")
-                    SetObjectFlagOn (player, "Insulin")
-                    SetTimeout (3) {
-                      MoveObject (player, Golgi Apparatus)
-                    }
-                  }
-                  case ("Kinase") {
-                    msg ("A kinase enzyme phosphorylates you")
-                    SetObjectFlagOn (player, "Titin")
-                    SetTimeout (3) {
-                      MoveObject (player, Golgi Apparatus)
-                    }
-                  }
-                  case ("Glycosylation Complex") {
-                    msg ("A glycosylation complex adds glycan units to your sequence")
-                    list_choices = Split("Afamin;Albumin;HGC;Transferrin", ";")
-                    selection = StringListItem (list_choices, GetRandomInt(0,3))
-                    SetObjectFlagOn (player, selection)
-                    SetTimeout (3) {
-                      MoveObject (player, Golgi Apparatus)
-                    }
-                  }
-                  case ("Acetyltransferase") {
-                    msg ("An Acetyltransferase enzyme adds acetyl groups to your sequence")
-                    SetObjectFlagOn (player, "Rhodopsin")
-                    SetTimeout (3) {
-                      MoveObject (player, Golgi Apparatus)
-                    }
-                  }
-                  case ("No Modification") {
-                    msg ("You continue with disulfide bond modifications only")
-                    SetObjectFlagOn (player, "Leptin")
-                    SetTimeout (3) {
-                      MoveObject (player, Golgi Apparatus)
-                    }
-                  }
-                }
-              }
-            }
-            case ("Methyltransferase") {
-              methylChoice = Split("Kinase; Acetyltransferase; No Modification", ";")
-              msg ("A methyltransferase enzyme adds methyl groups to your sequence")
-              ShowMenu ("Choose another modification", methylChoice, true) {
-                switch (result) {
-                  case ("Kinase") {
-                    msg ("A kinase enzyme phosphorylates you")
-                    SetObjectFlagOn (player, "CENPA")
-                    SetTimeout (3) {
-                      MoveObject (player, Golgi Apparatus)
-                    }
-                  }
-                  case ("Acetyltransferase") {
-                    msg ("An acetyltransferase enzyme adds acetyl groups to your sequence")
-                    SetObjectFlagOn (player, "Tubulin")
-                    SetTimeout (3) {
-                      MoveObject (player, Golgi Apparatus)
-                    }
-                  }
-                  case ("No Modification") {
-                    msg ("You continue with only methyl group modifications")
-                    SetObjectFlagOn (player, "Histone")
-                    SetTimeout (3) {
-                      MoveObject (player, Golgi Apparatus)
-                    }
-                  }
-                }
-              }
-            }
-            case ("Acetyltransferase") {
-              msg ("An acetyltransferase enzyme adds acetyl groups to your sequence")
-              list_choices = Split("Ferritin;Myosin;np53;cp53", ";")
-              selection = StringListItem (list_choices, GetRandomInt(0,3))
-              SetObjectFlagOn (player, selection)
-              SetTimeout (3) {
-                MoveObject (player, Golgi Apparatus)
-              }
-            }
-            case ("Sulfotransferase") {
-              msg ("A sulfotransferase enzyme adds a sulfonic acid group to your sequence")
-              SetTimeout (3) {
-                MoveObject (player, Golgi Apparatus)
-              }
-            }
-          }
-        }
       </enter>
       <beforeenter type="script">
         SetBackgroundImage ("RER.png")
-        msg ("There are a number of enzymes here that modify your sequence, giving it specific properties allowing you to have a function within or outside of the cell. You are being folded...")
-        SetTimeout (3) {
+        TextFX_Typewriter ("There are enzymes all around you that function to modify the sequences of proteins by adding modifications. You're being folded...", 30)
+        SetTimeout (6) {
           if (RandomChance(80)) {
             msg ("Well done! You were sequenced and folded properly!")
+            player.pov_look = "You are now a sequence of up to 20 amino acids. Depending on your modifications, you'll have differing purposes"
+            option1 = Split("Disulfide Isomerase;Methyltransferase;Acetyltransferase;Sulfotransferase", ";")
+            ShowMenu ("There are a number of enzymes present nearby. Each one modifies you in a specific way, causing you to be suited to a particular function. Make a choice:", option1, false) {
+              switch (result) {
+                case ("Disulfide Isomerase") {
+                  disulfChoice = Split("Protease;Kinase;Glycosylation Complex;Acetyltransferase;No Modification", ";")
+                  msg ("A disulfide isomerase enzyme adds a number of disulfide bonds to your sequence")
+                  ShowMenu ("Choose another modification", disulfChoice, true) {
+                    switch (result) {
+                      case ("Protease") {
+                        msg ("A protease enzyme splits you into two parts")
+                        SetObjectFlagOn (player, "Insulin")
+                        SetTimeout (3) {
+                          MoveObject (player, Golgi Apparatus)
+                        }
+                      }
+                      case ("Kinase") {
+                        msg ("A kinase enzyme phosphorylates you")
+                        SetObjectFlagOn (player, "Titin")
+                        SetTimeout (3) {
+                          MoveObject (player, Golgi Apparatus)
+                        }
+                      }
+                      case ("Glycosylation Complex") {
+                        msg ("A glycosylation complex adds glycan units to your sequence")
+                        list_choices = Split("Afamin;Albumin;HGC;Transferrin", ";")
+                        selection = StringListItem (list_choices, GetRandomInt(0,3))
+                        SetObjectFlagOn (player, selection)
+                        SetTimeout (3) {
+                          MoveObject (player, Golgi Apparatus)
+                        }
+                      }
+                      case ("Acetyltransferase") {
+                        msg ("An Acetyltransferase enzyme adds acetyl groups to your sequence")
+                        SetObjectFlagOn (player, "Rhodopsin")
+                        SetTimeout (3) {
+                          MoveObject (player, Golgi Apparatus)
+                        }
+                      }
+                      case ("No Modification") {
+                        msg ("You continue with disulfide bond modifications only")
+                        SetObjectFlagOn (player, "Leptin")
+                        SetTimeout (3) {
+                          MoveObject (player, Golgi Apparatus)
+                        }
+                      }
+                    }
+                  }
+                }
+                case ("Methyltransferase") {
+                  methylChoice = Split("Kinase; Acetyltransferase; No Modification", ";")
+                  msg ("A methyltransferase enzyme adds methyl groups to your sequence")
+                  ShowMenu ("Choose another modification", methylChoice, true) {
+                    switch (result) {
+                      case ("Kinase") {
+                        msg ("A kinase enzyme phosphorylates you")
+                        SetObjectFlagOn (player, "CENPA")
+                        SetTimeout (3) {
+                          MoveObject (player, Golgi Apparatus)
+                        }
+                      }
+                      case ("Acetyltransferase") {
+                        msg ("An acetyltransferase enzyme adds acetyl groups to your sequence")
+                        SetObjectFlagOn (player, "Tubulin")
+                        SetTimeout (3) {
+                          MoveObject (player, Golgi Apparatus)
+                        }
+                      }
+                      case ("No Modification") {
+                        msg ("You continue with only methyl group modifications")
+                        SetObjectFlagOn (player, "Histone")
+                        SetTimeout (3) {
+                          MoveObject (player, Golgi Apparatus)
+                        }
+                      }
+                    }
+                  }
+                }
+                case ("Acetyltransferase") {
+                  msg ("An acetyltransferase enzyme adds acetyl groups to your sequence")
+                  list_choices = Split("Ferritin;Myosin;np53;cp53", ";")
+                  selection = StringListItem (list_choices, GetRandomInt(0,3))
+                  SetObjectFlagOn (player, selection)
+                  SetTimeout (3) {
+                    MoveObject (player, Golgi Apparatus)
+                  }
+                }
+                case ("Sulfotransferase") {
+                  msg ("A sulfotransferase enzyme adds a sulfonic acid group to your sequence")
+                  SetTimeout (3) {
+                    MoveObject (player, Golgi Apparatus)
+                  }
+                }
+              }
+            }
           }
           else {
             msg ("Uh oh, you didn't fold properly. The chaperone protein binds to you and you may attempt to try folding again.")
@@ -467,6 +473,101 @@
                   }
                   else {
                     msg ("You folded properly and weren't broken down - well done!")
+                    player.pov_look = "You are now a sequence of up to 20 amino acids. Depending on your modifications, you'll have differing purposes"
+                    option1 = Split("Disulfide Isomerase;Methyltransferase;Acetyltransferase;Sulfotransferase", ";")
+                    ShowMenu ("There are a number of enzymes present nearby. Each one modifies you in a specific way, causing you to be suited to a particular function. Make a choice:", option1, false) {
+                      switch (result) {
+                        case ("Disulfide Isomerase") {
+                          disulfChoice = Split("Protease;Kinase;Glycosylation Complex;Acetyltransferase;No Modification", ";")
+                          msg ("A disulfide isomerase enzyme adds a number of disulfide bonds to your sequence")
+                          ShowMenu ("Choose another modification", disulfChoice, true) {
+                            switch (result) {
+                              case ("Protease") {
+                                msg ("A protease enzyme splits you into two parts")
+                                SetObjectFlagOn (player, "Insulin")
+                                SetTimeout (3) {
+                                  MoveObject (player, Golgi Apparatus)
+                                }
+                              }
+                              case ("Kinase") {
+                                msg ("A kinase enzyme phosphorylates you")
+                                SetObjectFlagOn (player, "Titin")
+                                SetTimeout (3) {
+                                  MoveObject (player, Golgi Apparatus)
+                                }
+                              }
+                              case ("Glycosylation Complex") {
+                                msg ("A glycosylation complex adds glycan units to your sequence")
+                                list_choices = Split("Afamin;Albumin;HGC;Transferrin", ";")
+                                selection = StringListItem (list_choices, GetRandomInt(0,3))
+                                SetObjectFlagOn (player, selection)
+                                SetTimeout (3) {
+                                  MoveObject (player, Golgi Apparatus)
+                                }
+                              }
+                              case ("Acetyltransferase") {
+                                msg ("An Acetyltransferase enzyme adds acetyl groups to your sequence")
+                                SetObjectFlagOn (player, "Rhodopsin")
+                                SetTimeout (3) {
+                                  MoveObject (player, Golgi Apparatus)
+                                }
+                              }
+                              case ("No Modification") {
+                                msg ("You continue with disulfide bond modifications only")
+                                SetObjectFlagOn (player, "Leptin")
+                                SetTimeout (3) {
+                                  MoveObject (player, Golgi Apparatus)
+                                }
+                              }
+                            }
+                          }
+                        }
+                        case ("Methyltransferase") {
+                          methylChoice = Split("Kinase; Acetyltransferase; No Modification", ";")
+                          msg ("A methyltransferase enzyme adds methyl groups to your sequence")
+                          ShowMenu ("Choose another modification", methylChoice, true) {
+                            switch (result) {
+                              case ("Kinase") {
+                                msg ("A kinase enzyme phosphorylates you")
+                                SetObjectFlagOn (player, "CENPA")
+                                SetTimeout (3) {
+                                  MoveObject (player, Golgi Apparatus)
+                                }
+                              }
+                              case ("Acetyltransferase") {
+                                msg ("An acetyltransferase enzyme adds acetyl groups to your sequence")
+                                SetObjectFlagOn (player, "Tubulin")
+                                SetTimeout (3) {
+                                  MoveObject (player, Golgi Apparatus)
+                                }
+                              }
+                              case ("No Modification") {
+                                msg ("You continue with only methyl group modifications")
+                                SetObjectFlagOn (player, "Histone")
+                                SetTimeout (3) {
+                                  MoveObject (player, Golgi Apparatus)
+                                }
+                              }
+                            }
+                          }
+                        }
+                        case ("Acetyltransferase") {
+                          msg ("An acetyltransferase enzyme adds acetyl groups to your sequence")
+                          list_choices = Split("Ferritin;Myosin;np53;cp53", ";")
+                          selection = StringListItem (list_choices, GetRandomInt(0,3))
+                          SetObjectFlagOn (player, selection)
+                          SetTimeout (3) {
+                            MoveObject (player, Golgi Apparatus)
+                          }
+                        }
+                        case ("Sulfotransferase") {
+                          msg ("A sulfotransferase enzyme adds a sulfonic acid group to your sequence")
+                          SetTimeout (3) {
+                            MoveObject (player, Golgi Apparatus)
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }
@@ -505,24 +606,6 @@
       JS.eval ("$('#my-video').width('1320');")
       JS.eval ("$('#my-video').height('500');")
     </script>
-  </command>
-  <object name="start">
-    <inherit name="editor_room" />
-    <alias> </alias>
-    <descprefix type="string"></descprefix>
-    <objectslistprefix type="string"></objectslistprefix>
-    <usedefaultprefix type="boolean">false</usedefaultprefix>
-    <object name="player">
-      <inherit name="editor_object" />
-      <inherit name="editor_player" />
-      <alias>Genetic Code</alias>
-      <look>You are a sequence of the nucleotides Adenine, Uracil, Cytosine and Guanine held together by a ribose sugar-phosphate backbone.</look>
-      <scenery type="boolean">false</scenery>
-      <attr name="pov_look">You are a sequence of the nucleotides Adenine, Uracil, Cytosine and Guanine held together by a ribose sugar-phosphate backbone.</attr>
-    </object>
-  </object>
-  <command name="look1">
-    <pattern>look1</pattern>
   </command>
   <function name="SetLastIframeID" parameters="id">
     // Find all the iframes
