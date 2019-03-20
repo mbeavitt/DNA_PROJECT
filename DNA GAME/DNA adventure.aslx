@@ -11,30 +11,48 @@
     <menufont>Georgia, serif</menufont>
     <attr name="feature_advancedscripts" type="boolean">false</attr>
     <borderlesscursor type="boolean">false</borderlesscursor>
-    <feature_pictureframe />
+    <attr name="feature_pictureframe" type="boolean">false</attr>
     <showpanes type="boolean">false</showpanes>
     <description>Welcome to our project game. The concept is that you are an RNA molecule being converted into a protein. You can "look at" or "use" all the objects in the game - try to find all the endings!</description>
     <gridmap type="boolean">false</gridmap>
     <attr name="feature_devmode" type="boolean">false</attr>
     <attr name="devmode_changepovpos" type="boolean">false</attr>
     <attr name="devmode_povpos">Endoplasmic Reticulum</attr>
-    <start type="script"><![CDATA[
-      msg ("Welcome to our project game. The concept is that you are an RNA molecule being converted into a protein. You can \"look at\" or \"use\" all the objects in the game - try to find all the endings!<br/>-try using the commands \"Look\" or \"use\". If you're stuck, type \"help\"")
-    ]]></start>
+    <backgroundimage>Nucleus.png</backgroundimage>
+    <marginscolour>Black</marginscolour>
+    <setbackgroundopacity />
+    <backgroundopacity type="double">0.3</backgroundopacity>
+    <defaultforeground>White</defaultforeground>
+    <colourblend type="boolean">false</colourblend>
+    <colourblendtop>Azure</colourblendtop>
+    <colourblendbottom>BlanchedAlmond</colourblendbottom>
+    <menuhoverbackground>Plum</menuhoverbackground>
+    <showborder type="boolean">false</showborder>
+    <showcommandbar />
+    <shadowbox />
+    <setcustomwidth />
+    <customwidth type="int">1360</customwidth>
+    <setcustompadding />
+    <custompaddingtop type="int">30</custompaddingtop>
+    <category>Educational</category>
+    <showdescriptiononenter type="boolean">false</showdescriptiononenter>
+    <start type="script">
+      TextFX_Typewriter ("Welcome to our project game. The concept is that you are an RNA molecule being converted into a protein. You can \"look at\" and/or \"use\" all the objects (the underlined words) in the game. Try clicking on them. The object is to move from organelle to organelle until you become a specific protein - try and find all the endings!", 30)
+      SetTimeout (13) {
+        MoveObject (player, Nucleus)
+      }
+    </start>
+    <echohyperlinks />
   </game>
   <object name="Nucleus">
     <inherit name="editor_room" />
     <isroom />
     <description>You are inside the nucleus of a cell. Around you float massive lengths of coiled DNA, being constantly modified and copied by enzymes.</description>
-    <picture>Nucleus 2019-01-31 14.48.58.png</picture>
-    <object name="player">
-      <inherit name="editor_object" />
-      <inherit name="editor_player" />
-      <alias>Genetic Code</alias>
-      <look>You are a sequence of the nucleotides Adenine, Uracil, Cytosine and Guanine held together by a ribose sugar-phosphate backbone.</look>
-      <scenery type="boolean">false</scenery>
-      <attr name="pov_look">You are a sequence of the nucleotides Adenine, Uracil, Cytosine and Guanine held together by a ribose sugar-phosphate backbone.</attr>
-    </object>
+    <onexit type="script">
+    </onexit>
+    <enter type="script">
+      TextFX_Typewriter (ShowRoomDescription, 100)
+    </enter>
     <object name="Multi Protein Polyadenylation Complex">
       <inherit name="editor_object" />
       <alias>Multi Protein Polyadenylation Complex</alias>
@@ -47,6 +65,10 @@
       <look type="script">
         picture ("Polyadenylation.png")
         msg ("It's a complex of six different proteins that functions to add a poly A tail to a strand of mRNA. You need the tail to exit the nucleus")
+        ShowYouTube ("TfYf_rPWUdY")
+        SetLastIframeID ("my-video")
+        JS.eval ("$('#my-video').width('1320');")
+        JS.eval ("$('#my-video').height('500');")
       </look>
       <use type="script">
         SetObjectFlagOn (player, "Polyadenylated")
@@ -70,8 +92,22 @@
           if (GetBoolean(player, "cap")) {
             if (GetBoolean(player, "spliced")) {
               msg ("The enzymes surrounding the nuclear pore recognise the modifications in your sequence, allowing entry to the nuclear pore")
-              SetTimeout (2) {
-                MoveObject (player, Cytosol)
+              SetTimeout (5) {
+                ClearScreen
+                SetBackgroundImage ("Cytoplasm_r.png")
+                options = Split("Yes, I do have an SRP;No, I don't have an SRP", ";")
+                ShowMenu ("Do you have a sequence that codes for ribosomal insertion?", options, false) {
+                  switch (result) {
+                    case ("Yes, I do have an SRP") {
+                      SetObjectFlagOn (player, "SRP")
+                      MoveObject (player, Cytosol)
+                    }
+                    case ("No, I don't have an SRP") {
+                      SetObjectFlagOn (player, "noSRP")
+                      MoveObject (player, Cytosol)
+                    }
+                  }
+                }
               }
             }
             else {
@@ -127,18 +163,9 @@
     <usedefaultprefix type="boolean">false</usedefaultprefix>
     <prefix>the</prefix>
     <description>This is the busy highway of the cell. Many molecules pass by you of many different types, and you can see giant strands of tubulin stretching into the distance, supporting all the various structures.</description>
-    <picture>Cytoplasm 2019-01-31 14.49.52.png</picture>
+    <beforeenter type="script">
+    </beforeenter>
     <enter type="script">
-      options = Split("Yes, I do have an SRP;No, I don't have an SRP", ";")
-      ShowMenu ("Do you have a sequence that codes for ribosomal insertion?", options, false) {
-        switch (result) {
-          case ("Yes, I do have an SRP") {
-            SetObjectFlagOn (player, "SRP")
-          }
-          case ("No, I don't have an SRP") {
-          }
-        }
-      }
     </enter>
     <object name="Golgi Apparatus">
       <look type="string"></look>
@@ -152,97 +179,65 @@
         <scenery type="boolean">false</scenery>
         <feature_usegive />
         <use type="script">
-          if (GetBoolean(player, "Disulfide Isomerase")) {
-            if (GetBoolean(player, "Protease")) {
-              msg ("Insulin ending")
-              picture ("")
-              finish
-            }
-            else if (GetBoolean(player, "Phosphorylation")) {
-              msg ("Titin Ending")
-              picture ("")
-              finish
-            }
-            else if (GetBoolean(player, "Glycosylation")) {
-              if (GetBoolean(player, "GPI Transamidase")) {
-                msg ("CEA Ending")
-                picture ("")
-                finish
-              }
-              else {
-                if (RandomChance(25)) {
-                  msg ("Afamin ending")
-                  picture ("")
-                  finish
-                }
-                else if (RandomChance(33)) {
-                  msg ("Serum albumin ending")
-                  picture ("")
-                  finish
-                }
-                else if (RandomChance(33)) {
-                  msg ("HGC ending")
-                  picture ("")
-                  finish
-                }
-                else {
-                  msg ("Transferrin Ending")
-                  picture ("")
-                  finish
-                }
-              }
-            }
-            else if (GetBoolean(player, "Acetylation")) {
-              msg ("Rhodopsin ending")
-              picture ("")
-              finish
-            }
-            else {
-              msg ("Leptin ending")
-              picture ("")
-              finish
-            }
+          if (GetBoolean(player, "Insulin")) {
+            msg ("You are an insulin molecule, and you help reduce blood sugar!")
+            picture ("insulin.png")
           }
-          else if (GetBoolean(player, "Methylation")) {
-            if (GetBoolean(player, "Phosphorylation")) {
-              msg ("CENPA/CENPB ending")
-              picture ("")
-              finish
-            }
-            else if (GetBoolean(player, "Acetylation")) {
-              if (GetBoolean(player, "Nitration")) {
-                msg ("Tubulin ending")
-                picture ("")
-                finish
-              }
-            }
+          else if (GetBoolean(player, "Afamin")) {
+            msg ("You are an Afamin molecule")
+            picture ("")
           }
-          else if (GetBoolean(player, "Acetylation")) {
-            if (RandomChance(25)) {
-              msg ("Ferritin ending")
-              picture ("")
-              finish
-            }
-            else if (RandomChance(33)) {
-              msg ("Myosin ending")
-              picture ("")
-              finish
-            }
-            else if (RandomChance(33)) {
-              msg ("Normal p53 ending")
-              picture ("")
-              finish
-            }
-            else {
-              msg ("Cancer causing p53 ending")
-              picture ("")
-              finish
-            }
+          else if (GetBoolean(player, "Albumin")) {
+            msg ("ENDING GOES HERE")
+            picture ("")
+          }
+          else if (GetBoolean(player, "HGC")) {
+            msg ("ENDING GOES HERE")
+            picture ("")
+          }
+          else if (GetBoolean(player, "Transferrin")) {
+            msg ("ENDING GOES HERE TRANSFERRIN")
+            picture ("")
+          }
+          else if (GetBoolean(player, "Rhodopsin")) {
+            msg ("ENDING GOES HERE RHODOPSIN")
+            picture ("")
+          }
+          else if (GetBoolean(player, "Leptin")) {
+            msg ("ENDING GOES HERE LEPTIN")
+            picture ("")
+          }
+          else if (GetBoolean(player, "CENPA")) {
+            msg ("ENDING GOES HERE")
+            picture ("")
+          }
+          else if (GetBoolean(player, "Tubulin")) {
+            msg ("ENDING GOES HERE")
+            picture ("")
+          }
+          else if (GetBoolean(player, "Histone")) {
+            msg ("ENDING GOES HERE")
+            picture ("")
+          }
+          else if (GetBoolean(player, "Ferritin")) {
+            msg ("ENDING GOES HERE")
+            picture ("")
+          }
+          else if (GetBoolean(player, "Myosin")) {
+            msg ("ENDING GOES HERE")
+            picture ("")
+          }
+          else if (GetBoolean(player, "np53")) {
+            msg ("ENDING GOES HERE")
+            picture ("")
+          }
+          else if (GetBoolean(player, "cp53")) {
+            msg ("ENDING GOES HERE")
+            picture ("")
           }
           else {
-            msg ("Leptin Ending")
-            picture ("")
-            finish
+            msg ("You are a titin molecule and you help in making muscles strong!")
+            picture ("tltsurf-t.jpg")
           }
         </use>
       </object>
@@ -268,7 +263,7 @@
       <look>Note - this will be both one of the endings (digestive hydrolase enzyme) and the death zone.</look>
     </object>
     <object name="Cell Membrane">
-      <usedefaultprefix />
+      <usedefaultprefix type="boolean">false</usedefaultprefix>
       <prefix type="string"></prefix>
       <displayverbs type="stringlist">
         <value>Look at</value>
@@ -289,42 +284,48 @@
       </look>
       <use type="script">
         if (GetBoolean(player, "SRP")) {
-          msg ("You have an SRP! You bind to the ribosome and it moves to the RER, attaching to the ER membrane and begins translation")
-          options = Split("I have a stop transfer sequence;I don't have a stop transfer sequence", ";")
-          ShowMenu ("Do you have a stop transfer sequence?", options, false) {
-            switch (result) {
-              case ("I have a stop transfer sequence") {
-                SetObjectFlagOn (player, "membrane protein")
-                msg ("You are now a membrane protein. Please wait while the ribosome translates your sequence.")
+          ClearScreen
+          TextFX_Typewriter ("You have an SRP! You bind to the ribosome and it moves to the RER, attaches to the ER membrane and begins translation", 30)
+          SetTimeout (4) {
+            options = Split("I have a stop transfer sequence;I don't have a stop transfer sequence", ";")
+            ShowMenu ("Do you have a stop transfer sequence?", options, true) {
+              switch (result) {
+                case ("I have a stop transfer sequence") {
+                  ClearScreen
+                  msg ("CEA ENDING")
+                  finish
+                }
+                case ("I don't have a stop transfer sequence") {
+                  msg ("The ribosome attaches to the RER and begins translation")
+                  MoveObject (player, Endoplasmic Reticulum)
+                }
               }
-              case ("I don't have a stop transfer sequence") {
-                SetObjectFlagOn (player, "soluble protein")
-                msg ("You are now a soluble protein. Please wait while the ribosome translates your sequence.")
-              }
-            }
-            SetTimeout (10) {
-              MoveObject (player, Endoplasmic Reticulum)
             }
           }
         }
         else {
+          ClearScreen
           msg ("You do not have an SRP - the ribosome translates you directly into the cytosol.")
           options = Split("Peroxisomal Signal Sequence;Mitochondrial Signal Sequence;Chloroplast Signal Sequence", ";")
-          ShowMenu ("Which of these signals are encoded in your sequence?", options, false) {
+          player.pov_look = "You are now a sequence of up to 20 amino acids. Depending on your modifications, you'll have differing purposes"
+          ShowMenu ("You're now a protein in the cytosol. Choose which signal sequence you have to determine your final location in the cell:", options) {
             switch (result) {
               case ("Peroxisomal Signal Sequence") {
-                msg ("Travel to peroxisome")
-                MoveObject (player, Peroxisome)
+                ClearScreen
+                msg ("Your signal sequence is recognised by the cell membrane of the peroxisome. It allows you to pass through, and modifies you. You become a catalase enzyme, and you function to break down peroxide into hydrogen and oxygen. You exist commonly in plants, aiding in the photosynthetic process as well as in pathogenic microbes where you break down peroxide, a microbial agent, and increase your survivability in hosts")
+                msg ("GAME OVER")
                 finish
               }
               case ("Mitochondrial Signal Sequence") {
-                msg ("Travel to mitochondrion")
-                MoveObject (player, Mitochondrion)
+                ClearScreen
+                msg ("Your signal sequence is recognised by the cell membrane of the mitochondrion. It allows you to pass through, and modifies you. You become an ATP synthase enzyme, located within the thylakoid membrane. You couple the passage of protons down the chemical gradient of the mitochondrial membrane to the synthesis reaction of ADP to ATP, creating new ATP molecules. They are used all throughout the cell and human body to drive energetic processes.")
+                msg ("GAME OVER")
                 finish
               }
               case ("Chloroplast Signal Sequence") {
-                msg ("Travel to chloroplast")
-                MoveObject (player, Chloroplast HIDDEN)
+                ClearScreen
+                msg ("Your signal sequence is recognised by the cell membrane of the mitochondrion. It allows you to pass through, and modifies you. You become a ribulose-1,5-bisphosphate carboxylase/oxygenase enzyme (Rubisco for short). You are the first step in plant photosynthesis, and function to fixate carbon. You are known to be the most prolific enzyme on earth, and you bind to carbon dioxide, passing it on to the photosynthetic processes to convert it into glucose.")
+                msg ("GAME OVER")
                 finish
               }
             }
@@ -339,15 +340,114 @@
         <value>Look at</value>
       </displayverbs>
       <look type="string"></look>
+      <scenery />
       <description type="script">
         msg ("")
         picture ("")
       </description>
-      <enter type="script"><![CDATA[
+      <enter type="script">
+        player.pov_look = "You are now a sequence of up to 20 amino acids. Depending on your modifications, you'll have differing purposes"
+        option1 = Split("Disulfide Isomerase;Methyltransferase;Acetyltransferase;Sulfotransferase", ";")
+        ShowMenu ("There are a number of enzymes present nearby. Each one modifies you in a specific way, causing you to be suited to a particular function. Make a choice:", option1, false) {
+          switch (result) {
+            case ("Disulfide Isomerase") {
+              disulfChoice = Split("Protease;Kinase;Glycosylation Complex;Acetyltransferase;No Modification", ";")
+              msg ("A disulfide isomerase enzyme adds a number of disulfide bonds to your sequence")
+              ShowMenu ("Choose another modification", disulfChoice, true) {
+                switch (result) {
+                  case ("Protease") {
+                    msg ("A protease enzyme splits you into two parts")
+                    SetObjectFlagOn (player, "Insulin")
+                    SetTimeout (3) {
+                      MoveObject (player, Golgi Apparatus)
+                    }
+                  }
+                  case ("Kinase") {
+                    msg ("A kinase enzyme phosphorylates you")
+                    SetObjectFlagOn (player, "Titin")
+                    SetTimeout (3) {
+                      MoveObject (player, Golgi Apparatus)
+                    }
+                  }
+                  case ("Glycosylation Complex") {
+                    msg ("A glycosylation complex adds glycan units to your sequence")
+                    list_choices = Split("Afamin;Albumin;HGC;Transferrin", ";")
+                    selection = StringListItem (list_choices, GetRandomInt(0,3))
+                    SetObjectFlagOn (player, selection)
+                    SetTimeout (3) {
+                      MoveObject (player, Golgi Apparatus)
+                    }
+                  }
+                  case ("Acetyltransferase") {
+                    msg ("An Acetyltransferase enzyme adds acetyl groups to your sequence")
+                    SetObjectFlagOn (player, "Rhodopsin")
+                    SetTimeout (3) {
+                      MoveObject (player, Golgi Apparatus)
+                    }
+                  }
+                  case ("No Modification") {
+                    msg ("You continue with disulfide bond modifications only")
+                    SetObjectFlagOn (player, "Leptin")
+                    SetTimeout (3) {
+                      MoveObject (player, Golgi Apparatus)
+                    }
+                  }
+                }
+              }
+            }
+            case ("Methyltransferase") {
+              methylChoice = Split("Kinase; Acetyltransferase; No Modification", ";")
+              msg ("A methyltransferase enzyme adds methyl groups to your sequence")
+              ShowMenu ("Choose another modification", methylChoice, true) {
+                switch (result) {
+                  case ("Kinase") {
+                    msg ("A kinase enzyme phosphorylates you")
+                    SetObjectFlagOn (player, "CENPA")
+                    SetTimeout (3) {
+                      MoveObject (player, Golgi Apparatus)
+                    }
+                  }
+                  case ("Acetyltransferase") {
+                    msg ("An acetyltransferase enzyme adds acetyl groups to your sequence")
+                    SetObjectFlagOn (player, "Tubulin")
+                    SetTimeout (3) {
+                      MoveObject (player, Golgi Apparatus)
+                    }
+                  }
+                  case ("No Modification") {
+                    msg ("You continue with only methyl group modifications")
+                    SetObjectFlagOn (player, "Histone")
+                    SetTimeout (3) {
+                      MoveObject (player, Golgi Apparatus)
+                    }
+                  }
+                }
+              }
+            }
+            case ("Acetyltransferase") {
+              msg ("An acetyltransferase enzyme adds acetyl groups to your sequence")
+              list_choices = Split("Ferritin;Myosin;np53;cp53", ";")
+              selection = StringListItem (list_choices, GetRandomInt(0,3))
+              SetObjectFlagOn (player, selection)
+              SetTimeout (3) {
+                MoveObject (player, Golgi Apparatus)
+              }
+            }
+            case ("Sulfotransferase") {
+              msg ("A sulfotransferase enzyme adds a sulfonic acid group to your sequence")
+              SetTimeout (3) {
+                MoveObject (player, Golgi Apparatus)
+              }
+            }
+          }
+        }
+      </enter>
+      <beforeenter type="script">
+        SetBackgroundImage ("RER.png")
         msg ("There are a number of enzymes here that modify your sequence, giving it specific properties allowing you to have a function within or outside of the cell. You are being folded...")
         SetTimeout (3) {
           if (RandomChance(80)) {
-            msg ("Well done! You were sequenced and folded properly!<br/>")
+            msg ("Well done! You were sequenced and folded properly!")
           }
           else {
             msg ("Uh oh, you didn't fold properly. The chaperone protein binds to you and you may attempt to try folding again.")
@@ -355,22 +455,25 @@
             ShowMenu ("Would you like to try again?", option, false) {
               switch (result) {
                 case ("Give up") {
+                  ClearScreen
                   msg ("Ubiquitin attached, Player is broken down")
                   finish
                 }
                 case ("Try again") {
                   if (RandomChance(50)) {
+                    ClearScreen
                     msg ("Ubiquitin attached, Player is broken down")
+                    finish
                   }
                   else {
-                    msg ("Well done! You were sequenced and folded properly!<br/>")
+                    msg ("You folded properly and weren't broken down - well done!")
                   }
                 }
               }
             }
           }
         }
-      ]]></enter>
+      </beforeenter>
     </object>
     <object name="Peroxisome">
       <isroom />
@@ -393,5 +496,41 @@
   <object name="Outside the Cell">
     <inherit name="editor_room" />
   </object>
+  <command name="hint">
+    <unresolved>error</unresolved>
+    <pattern>I don't understand anything! Help!</pattern>
+    <script>
+      ShowYouTube ("TfYf_rPWUdY")
+      SetLastIframeID ("my-video")
+      JS.eval ("$('#my-video').width('1320');")
+      JS.eval ("$('#my-video').height('500');")
+    </script>
+  </command>
+  <object name="start">
+    <inherit name="editor_room" />
+    <alias> </alias>
+    <descprefix type="string"></descprefix>
+    <objectslistprefix type="string"></objectslistprefix>
+    <usedefaultprefix type="boolean">false</usedefaultprefix>
+    <object name="player">
+      <inherit name="editor_object" />
+      <inherit name="editor_player" />
+      <alias>Genetic Code</alias>
+      <look>You are a sequence of the nucleotides Adenine, Uracil, Cytosine and Guanine held together by a ribose sugar-phosphate backbone.</look>
+      <scenery type="boolean">false</scenery>
+      <attr name="pov_look">You are a sequence of the nucleotides Adenine, Uracil, Cytosine and Guanine held together by a ribose sugar-phosphate backbone.</attr>
+    </object>
+  </object>
+  <command name="look1">
+    <pattern>look1</pattern>
+  </command>
+  <function name="SetLastIframeID" parameters="id">
+    // Find all the iframes
+    js = "var iframes = document.getElementsByTagName('iframe');"
+    // Find the last iframe, and call it "lastIframe"
+    js = js + "var lastIframe = iframes[iframes.length-1];"
+    js = js + "lastIframe.id = '"+id+"'"
+    JS.eval (js)
+  </function>
   <walkthrough name="DNA adventure walkthrough" />
 </asl>
