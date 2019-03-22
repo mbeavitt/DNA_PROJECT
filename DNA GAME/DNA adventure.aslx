@@ -13,12 +13,12 @@
     <borderlesscursor type="boolean">false</borderlesscursor>
     <attr name="feature_pictureframe" type="boolean">false</attr>
     <showpanes type="boolean">false</showpanes>
-    <description>Welcome to our project game. The concept is that you are an RNA molecule being converted into a protein. You can "look at" or "use" all the objects in the game - try to find all the endings!</description>
+    <description>Welcome to our project game. The concept is that you are an RNA molecule being converted into a protein. You can "look at" for more information or "use" all the objects in the game - try to find all the endings!</description>
     <gridmap type="boolean">false</gridmap>
     <attr name="feature_devmode" type="boolean">false</attr>
     <attr name="devmode_changepovpos" type="boolean">false</attr>
     <attr name="devmode_povpos">Endoplasmic Reticulum</attr>
-    <backgroundimage>Nucleus.png</backgroundimage>
+    <backgroundimage>videoblocks-cell-division-microbiology-background-with-purple-cell-nucleus-and-blue-neon-cytoplasm-under-microscope-on-clear-dark-blue-ba.png</backgroundimage>
     <marginscolour>Black</marginscolour>
     <setbackgroundopacity />
     <backgroundopacity type="double">0.3</backgroundopacity>
@@ -36,6 +36,7 @@
     <custompaddingtop type="int">30</custompaddingtop>
     <category>Educational</category>
     <showdescriptiononenter />
+    <cover>videoblocks-cell-division-microbiology-background-with-purple-cell-nucleus-and-blue-neon-cytoplasm-under-microscope-on-clear-dark-blue-ba.png</cover>
     <start type="script">
       msg ("Welcome to our project game. The concept is that you are an RNA molecule being converted into a protein. You can \"look at\" and/or \"use\" all the objects (the underlined words) in the game. Try clicking on them. The object is to move from organelle to organelle until you become a specific protein - try and find all the endings!")
     </start>
@@ -48,14 +49,6 @@
     </onexit>
     <enter type="script">
     </enter>
-    <object name="player">
-      <inherit name="editor_object" />
-      <inherit name="editor_player" />
-      <alias>Genetic Code</alias>
-      <look>You are a sequence of the nucleotides Adenine, Uracil, Cytosine and Guanine held together by a ribose sugar-phosphate backbone.</look>
-      <scenery type="boolean">false</scenery>
-      <attr name="pov_look">You are a sequence of the nucleotides Adenine, Uracil, Cytosine and Guanine held together by a ribose sugar-phosphate backbone.</attr>
-    </object>
     <object name="Multi Protein Polyadenylation Complex">
       <inherit name="editor_object" />
       <alias>Multi Protein Polyadenylation Complex</alias>
@@ -160,6 +153,14 @@
         msg ("You enter the spliceosome and it removes all of your non-coding introns, condensing your genetic code.")
       </use>
     </object>
+    <object name="player">
+      <inherit name="editor_object" />
+      <inherit name="editor_player" />
+      <alias>Genetic Code</alias>
+      <look>You are a sequence of the nucleotides Adenine, Uracil, Cytosine and Guanine held together by a ribose sugar-phosphate backbone.</look>
+      <scenery type="boolean">false</scenery>
+      <attr name="pov_look">You are a sequence of the nucleotides Adenine, Uracil, Cytosine and Guanine held together by a ribose sugar-phosphate backbone.</attr>
+    </object>
   </object>
   <object name="Cytosol">
     <inherit name="editor_room" />
@@ -171,7 +172,10 @@
     <enter type="script">
     </enter>
     <object name="Golgi Apparatus">
-      <look type="string"></look>
+      <look type="script">
+        msg ("")
+        picture ("")
+      </look>
       <displayverbs type="stringlist">
         <value>Look at</value>
       </displayverbs>
@@ -185,37 +189,38 @@
           if (GetBoolean(player, "Insulin")) {
             msg ("You are an insulin molecule, and you help reduce blood sugar!")
             picture ("insulin.png")
+            msg ("")
           }
           else if (GetBoolean(player, "Afamin")) {
-            msg ("You are an Afamin molecule")
-            picture ("")
+            msg ("You are an Afamin molecule. You are combined with three other genes that localise the fourth chromosome. You all encode structurally related serum transport proteins that are known to be evolutionarily related.")
+            picture ("1920px-Ideogram_human_chromosome_4.svg.png")
           }
           else if (GetBoolean(player, "Albumin")) {
-            msg ("ENDING GOES HERE")
-            picture ("")
+            msg ("You are a Serum albumin. Your main function is to regulate the colloidal osmotic pressure of blood. ")
+            picture ("ALB_structure.png")
           }
           else if (GetBoolean(player, "HGC")) {
-            msg ("ENDING GOES HERE")
-            picture ("")
+            msg ("You are a HGC (a protein hormone). You maintain estrogen and progesterone levels in pregnant women. ")
+            picture ("HCG_structure.png")
           }
           else if (GetBoolean(player, "Transferrin")) {
-            msg ("ENDING GOES HERE TRANSFERRIN")
-            picture ("")
+            msg ("You are a Transferrin receptor protein. You control the level of iron in the human body, transport iron in the blood plasma encoded by the TF gene. Also, you are found in the cell membrane.")
+            picture ("800px-Protein_TF_PDB_1a8e.png")
           }
           else if (GetBoolean(player, "Rhodopsin")) {
-            msg ("ENDING GOES HERE RHODOPSIN")
-            picture ("")
+            msg ("You are a Rhodopsin molecule.  You are a type of photoreceptor which is required for image-forming vision in dim-light intensity.")
+            picture ("Rhodopsin_3D.jpg")
           }
           else if (GetBoolean(player, "Leptin")) {
-            msg ("ENDING GOES HERE LEPTIN")
+            msg ("")
             picture ("")
           }
           else if (GetBoolean(player, "CENPA")) {
-            msg ("ENDING GOES HERE")
+            msg ("")
             picture ("")
           }
           else if (GetBoolean(player, "Tubulin")) {
-            msg ("ENDING GOES HERE")
+            msg ("")
             picture ("")
           }
           else if (GetBoolean(player, "Histone")) {
@@ -239,8 +244,8 @@
             picture ("")
           }
           else {
-            msg ("You are a titin molecule and you help in making muscles strong!")
-            picture ("tltsurf-t.jpg")
+            msg ("You are a Titin molecule, which is one of the largest proteins in the human body. You are involved in the elastic function and organisation of all muscle in the human body.")
+            picture ("1BPV.png")
           }
         </use>
       </object>
@@ -295,7 +300,9 @@
               switch (result) {
                 case ("I have a stop transfer sequence") {
                   ClearScreen
-                  msg ("CEA ENDING")
+                  msg ("You are a CEA antigen(glycoprotein) involved in cell adhesion produced in the gastrointestinal tissue during fetal development.")
+                  picture ("PBB_Protein_CEACAM5_image.jpg")
+                  TextFX_Typewriter ("GAME OVER", 200)
                   finish
                 }
                 case ("I don't have a stop transfer sequence") {
