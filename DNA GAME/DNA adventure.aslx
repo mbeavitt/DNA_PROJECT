@@ -67,7 +67,7 @@
       </displayverbs>
       <look type="script">
         picture ("Polyadenylation.png")
-        msg ("It's a complex of six different proteins that functions to add a poly A tail to a strand of mRNA. You need the tail to exit the nucleus")
+        msg ("It's a complex of six different proteins that functions to add a poly A tail to a strand of mRNA. You need the tail to exit the nucleus.")
         ShowYouTube ("TfYf_rPWUdY")
         SetLastIframeID ("my-video")
         JS.eval ("$('#my-video').width('1320');")
