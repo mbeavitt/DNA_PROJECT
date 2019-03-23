@@ -272,6 +272,7 @@
         <value>Look at</value>
       </displayverbs>
       <isroom />
+      <look>The cell membrane is a semipermeable membrane surrounding the cytoplasm of a cell, it consist of a lipid bilayer with embedded proteins.</look>
     </object>
     <object name="Ribosome">
       <inherit name="editor_object" />
@@ -584,6 +585,7 @@
       <enter type="script">
         msg ("PEROXISOME ENDING - Catalase")
       </enter>
+      <look>A peroxisome is a small organelle present in the cytoplasm, it contains catalase and usually some oxidases.</look>
     </object>
     <object name="Chloroplast HIDDEN">
       <alias>Chloroplast</alias>
@@ -592,6 +594,7 @@
       <enter type="script">
         msg ("CHLOROPLAST ENDING - Rubisco protein")
       </enter>
+      <look>Chloroplasts are organelles found in plant cells and eukaryotic algae and it conducts photosynthesis.</look>
     </object>
   </object>
   <object name="Outside the Cell">
